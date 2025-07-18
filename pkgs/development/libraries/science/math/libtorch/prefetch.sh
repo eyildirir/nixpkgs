@@ -6,7 +6,7 @@ set -eou pipefail
 version=$1
 
 bucket="https://download.pytorch.org/libtorch"
-CUDA_VERSION=cu124
+CUDA_VERSION=${2:-cu124}
 
 url_and_key_list=(
   "aarch64-darwin-cpu $bucket/cpu/libtorch-macos-arm64-${version}.zip libtorch-macos-arm64-${version}.zip"
@@ -23,7 +23,7 @@ for url_and_key in "${url_and_key_list[@]}"; do
   name=$(echo "$url_and_key" | cut -d' ' -f3)
 
   echo "prefetching ${url}..."
-  hash=$(nix --extra-experimental-features nix-command hash to-sri --type sha256 $(nix-prefetch-url --unpack "$url" --name "$name"))
+  hash=$(nix hash convert --hash-algo sha256 --to sri $(nix-prefetch-url --unpack "$url" --name "$name"))
 
   echo "    $key = {" >> $hashfile
   echo "      name = \"$name\";" >> $hashfile
